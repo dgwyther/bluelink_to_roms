@@ -1,18 +1,20 @@
-cd /home/z3097808/eac/bluelink
+addpath(genpath('../ext/'))
+addpath(genpath('../../conf/'))
 
-grid=grid_read('../grid/EACouter_varres_grd_mergedBLbry.nc');
-epoch=datenum([2000,1,1,0,0,0]);
+set_default_options()
 
-out='../../../../srv/scratch/z3097808/bluelink_new/20years/EAC_BRAN_1994Jan1_ini.nc';
+grid=grid_read(opt.grid_path_roms);
+
+out = opt.inifile_name;
 in='../../../../srv/scratch/z3097808/bluelink_new/20years/EAC_BRAN_clim_1994_1.nc';
 
 tt=nc_varget(in,'zeta_time');
-initime=datenum(1994,1,1,12,0,0);
+initime=opt.initime;
 
-ini_write(grid, out, datenum(2000,1,1), true);
-times = nc_varget(in,'zeta_time')+epoch;
+ini_write(grid, out, opt.epoch_roms, true);
+times = nc_varget(in,'zeta_time')+opt.epoch_roms;
 l=find(times==initime);
-initime = (initime-epoch)*86400;
+initime = (initime-opt.epoch_roms)*86400;
 nc_varput(out,'ocean_time',initime);
 
 vars={'zeta' 'ubar' 'vbar'};

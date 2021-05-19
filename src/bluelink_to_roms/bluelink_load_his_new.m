@@ -3,16 +3,19 @@
 % Created by Colette Kerry on 2014-08-12
 % modified for new bluelink files Sept 2015
 
-cd /home/z3097808/eac/bluelink
+addpath(genpath('../ext/'))
+addpath(genpath('../../conf/'))
+
+set_default_options()
 
 %% ------ user input ------
 
-grid=grid_read('/home/z3097808/eac/grid/EACouter_varres_grd_mergedBLbry.nc')
-epoch_roms=datenum(2000,1,1);
-outpath='/srv/scratch/z3097808/bluelink_new/20years/';
-outfile=[outpath,'EAC_BlueLink_his_1994_2016.nc'];
-%years=2013;
-years=[1994:2016];
+grid=grid_read(opt.grid_path) % grid file path
+epoch_roms=opt.epoch_roms;				% epoch for data
+outpath=opt.outpath;	% set output path
+outfile=opt.outfile; 	% set output file name
+years=opt.years;	% set time coverage
+path=opt.path;		% set path to BRAN2020 data
 
 %% ----- end user input ------
 
@@ -31,8 +34,6 @@ end
 
 % daily data
 time=[datenum(years(1),1,1):datenum(years(end),12,31)]+0.5;
-
-path='/srv/scratch/z3097808/bluelink_new/files/20years/';
 
   for lbt=1:length(y)
 
@@ -189,7 +190,7 @@ end
     end % end if dims is 3 or 4 loop
         ttot=toc;
         fdone=['Done ocean_',blvars{vv},'_',num2str(y(lbt)),'_',m_s,'.nc ------ took ',num2str(ttot),' seconds'];
-        if lbt==1&vv==1; fid = fopen('MLrunlog.txt','w');end
+        if lbt==1&vv==1; fid = fopen('MLrunlog.log','w');end
         fprintf(fid,'%s\n',fdone);
   end % end the vv loop
 end % end the time/number of files loop (lbt), one file per month

@@ -1,0 +1,5 @@
+# big output files
+*.mat
+*.nc
+# log files
+*.log
