@@ -1,0 +1,10 @@
+isFsur=1;
+isUbar=2;
+isVbar=3;
+isUvel=4;
+isVvel=5;
+isTemp=6;
+isSalt=7;
+isVars={ 'zeta' 'ubar' 'vbar' 'u' 'v' 'temp' 'salt' };
+isVarsVar={ 'zeta_var' 'ubar_var' 'vbar_var' 'u_var' 'v_var' 'temp_var' 'salt_var' };
+spherical='T';

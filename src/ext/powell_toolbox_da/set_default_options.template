@@ -1,0 +1,41 @@
+function opt = set_default_options( )
+
+%   Directories Needed
+opt.root_dir              = '/Users/enrique/ROMS/WC13';
+opt.grid                  = [opt.root_dir '/wc13_grd.nc.0'];
+opt.average               = [opt.root_dir '/spinup_mean.nc'];
+opt.obs_out               = [opt.root_dir '/OBS'];
+opt.ssh_dir               = [opt.root_dir '/DATA/sat/ssh'];
+opt.sst_dir               = [opt.root_dir '/DATA/sat/sst'];
+
+%   Parameters for Creation of Observations
+
+%   How to bin data in space and time
+opt.di                    = 1;                % grid
+opt.dj                    = 1;                % grid
+opt.dz                    = 1;                % grid
+opt.ddepths               = [0:25:2000];      % meters
+opt.dtime                 = 0.25;             % days
+
+%   Parameters of grid, instruments, and time
+opt.surface_layer         = 30;
+opt.varinfo               = [0.02^2 0.0001^2 0.0001^2 0.1^2 0.1^2 0.08^2 0.0001^2]';
+opt.maxvarinfo            = [0.5^2 0.0001^2 0.0001^2 0.5^2 0.5^2 1 0.0001^2]';
+opt.epoch                 = datenum(1968,5,23);
+opt.dlat                  = 15;
+opt.dlon                  = 15;
+opt.assim_period          = 14;
+opt.dt_min                = 0.05;   % days -- must be greater or
+                                    % equal to model DT
+
+%   Location of etopo8.2 database (if you will use bathymetry)
+opt.etopo82               = '/home/powellb/matlab/toolbox/manu/topex_topo/topo_8.2.img';
+
+%   Parameters for the AVISO Altimetry
+opt.aviso_lat_var         = 'NBLATITUDES488_757';
+opt.aviso_lon_var         = 'NBLONGITUDES541_781';
+
+%   This structure is required if you wish to convert from depth to layer
+%   using the depth_grid.m function
+% load ias_depths        % To load the depth40 grid
+% opt.hz                    = depth40;
