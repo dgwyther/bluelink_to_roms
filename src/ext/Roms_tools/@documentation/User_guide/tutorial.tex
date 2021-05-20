@@ -1,0 +1,562 @@
+This section presents the essential steps for preparing
+and running a regional ROMS simulation. This is 
+done following the example of a model of the
+Peruvian Upwelling System at low resolution.
+ 
+\subsection{Getting started}
+
+Once the installation has been successful, start a Matlab session
+in the directory: $\sim$/Roms\_tools/Run. Launch the start.m
+script to set the Matlab path for this session: \\
+\\
+$>>$ start \\
+Add the paths of the different toolboxes... \\
+$>>$ \\
+\\
+You are now ready to start a new configuration.
+It is now important to respect the order of the following steps.
+
+\subsection{Building the grid}
+
+Open the file : $\sim$/Roms\_tools/Preprocessing\_tools/make\_grid.m in 
+you favorite editor. The part of the file that you should change is :
+\\ \\
+\%\\
+\%  Title\\ 
+\%\\
+title='Peru Test Model';\\
+\%\\
+\%  Grid file name\\
+\%\\
+grdname='roms\_grd.nc';\\
+\%\\
+\% Slope parameter (r=grad(h)/h) maximum value for topography smoothing\\
+\%\\
+rtarget=0.2;\\
+\%\\
+\% Grid dimensions:\\
+\%   lonmin : Minimum longitude [degree east]\\
+\%   lonmax : Maximum longitude [degree east]\\
+\%   latmin : Minimum latitude [degree north]\\
+\%   latmax : Maximum latitude [degree north]\\
+\%\\
+lonmin=-85;\\
+lonmax=-75;\\
+latmin=-15;\\
+latmax=-7;\\
+\%\\
+\% Grid resolution [degree]\\
+\%\\
+dl=1/3;\\
+\%\\
+\% Minimum depth [m]\\
+\%\\
+hmin=10;\\
+\%\\
+\%  Topography netcdf file name (ETOPO 2)\\
+\%\\
+topofile='../Topo/etopo2.nc';\\
+\%\\
+\%  GSHSS user defined coastline (see m\_map) \\
+\%\\
+coastfileplot='';\\
+\\
+The variables that you can change :
+\begin{itemize}
+\item title='Peru Test Model' : You can give any name 
+you want for your configuration
+\item grdname='roms\_grd.nc' : Name of the ROMS netcdf grid file  you are 
+building. In general, we follow the style : XXX\_grd.nc.
+\item rtarget=0.2 : This variable control the maximum value of the $r$-parameter
+that measures the slope of the sigma layers \citep{Bec93}:
+$$
+r=\frac{\nabla h}{2h}=\frac{h_{+1/2}-h_{-1/2}}{h_{+1/2}+h_{-1/2}}  
+$$
+To prevent horizontal pressure gradients errors, well known in
+terrain-following coordinate models \citep{Han91}, realistic topography
+requires some smoothing. Empirical results have shown that reliable
+results are obtained if $r$ does not exceed 0.2.
+\item lonmin=-85 : Western limit of the grid in longitude [-180$^\circ$E, 180$^\circ$E]. 
+The grid is rectangular in latitude/longitude.
+\item lonmax=-75 : Eastern limit [-180$^\circ$E, 180$^\circ$E]. 
+Should be superior to lonmin.
+\item latmin=-15 : Southern limit of the grid in latitude [-90$^\circ$N, 90$^\circ$N].
+\item latmax=-7 : Northern limit [-90$^\circ$N, 90$^\circ$N].
+Should be superior to latmin.
+\item dl=1/3 : Grid longitude spacing in degrees. The latitude spacing is deduced to
+obtain an isotropic grid ($d\phi=dl\cos(\phi)$).
+\item hmin=10 : Minimum depth in meters. The model depth is cut a this level 
+to prevent, for example, the occurrence of model grid cells without water.
+This does not influence the masking routines.
+\item topofile='../Topo/etopo2.nc' : Default topography file. We are using 
+here etopo2 \citep{Smi97}. 
+\item coastfileplot='' : If you have a m\_map binary coastal file to make 
+nice plots, you can add it here. These files can be generated with make\_coast.m.
+If there is no file, the program will use a default global coarse coastline file.
+This has only an effects on graphics. 
+\end{itemize}
+
+Save make\_grid.m and run it in the Matlab session :
+\\ \\
+$>>$ make\_grid
+\\ \\
+Be careful to note the values given for LLm and MMm during the process,
+they will be necessary for the ROMS file param.h (in this test case,
+LLm0 = 29 and MMm0 = 24). Figure (\ref{fig:grid}) presents the
+bottom topography obtained with make\_grid.m for the
+Peru Upwelling example. Note that at this low
+resolution (1/3$^\circ$), the topography has been strongly
+smoothed.
+Once you are happy with the horizontal grid, you 
+can add the surface forcing.
+
+\begin{figure}[h!]
+\centerline{\psfig{figure=grid.eps,width=10cm}}
+\caption{Result of make\_grid.m for the Peru example}
+\label{fig:grid}
+\end{figure}
+
+\subsection{Getting the wind and other surface fluxes}
+
+The next step is to create the file containing the different surface
+fluxes. Edit the file\\
+$\sim$/Roms\_tools/Preprocessing\_tools/make\_forcing.m.
+Since we are going to use the default climatology surface forcing \citep{Das94},
+the part that you need to change is only: 
+\\ \\
+\%\\
+\%  Title - Grid file name - Forcing file name \\
+\% \\
+title='Forcing (COADS)'; \\
+grdname='roms\_grd.nc'; \\
+frcname='roms\_frc.nc'; \\
+\% \\
+\\
+These variables are :
+\begin{itemize}
+\item title='Forcing (COADS)' : Any title is good.
+\item grdname='roms\_grd.nc' : Name of the ROMS netcdf grid file 
+that has been previously created. 
+\item frcname='roms\_frc.nc' : Name of the ROMS netcdf surface forcing file  you are 
+building. In most cases, we follow the style : XXX\_frc.nc.
+\end{itemize}
+
+Save make\_forcing.m and run it in the Matlab session :
+\\ \\
+$>>$ make\_forcing
+\\ \\
+This program can take a relatively long time to process all the variables.
+\begin{figure}[h!]
+\centerline{\psfig{figure=sst_wind.eps,width=14cm}}
+\caption{Result of make\_forcing.m for the Peru example}
+\label{fig:forcing}
+\end{figure}
+Figure (\ref{fig:forcing}) presents the
+sea surface temperature and the wind vectors that has
+been interpolated from the climatology \citep{Das94}
+at 4 different times of the year.
+The sea surface temperature is used for the restoring term
+in the heat flux calculation. 
+
+\subsection{Getting the lateral boundary conditions}
+
+The last preprocessing step consist in generating the files containing 
+the necessary informations for the lateral open boundaries and the initial
+conditions of the model. 
+This is done using the file $\sim$/Roms\_tools/Preprocessing\_tools/make\_clim.m.
+This script process two files : the climatology file that gives the lateral
+boundary conditions and the initial condition file.
+The part that can be changed by the user is as follow:
+\\ \\
+\%\\
+\%  Title \\
+\%\\
+title='Climatology';\\
+\%\\
+\%  Switches for selecting what to process (1=ON)\\
+\%\\
+makeclim=1; \%1: process boundary data\\
+makeoa=1;   \%1: process oa data\\
+makeini=1;  \%1: process initial data\\
+\%\\
+\%  Grid file name - Climatology file name\\
+\%  Initial file name - OA file name\\
+\%\\
+grdname='roms\_grd.nc';\\
+frcname='roms\_frc.nc';\\
+clmname='roms\_clm.nc';\\
+ininame='roms\_ini.nc';\\
+oaname ='roms\_oa.nc';\\
+\%\\
+\%  Vertical grid parameters\\
+\%  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\\
+\%  !!! WARNING WARNING WARNING WARNING WARNING  !!!\\
+\%  !!!   THESE MUST IDENTICAL IN THE .IN FILE   !!!\\
+\%  !!! WARNING WARNING WARNING WARNING WARNING  !!!\\
+\%  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\\
+\%\\
+theta\_s=7.;\\
+theta\_b=0.;\\
+hc=5.;\\
+N=20; \% number of vertical levels (rho)\\
+\%\\
+\%  Open boundaries switches\\
+\%  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\\
+\%  !!! WARNING WARNING WARNING WARNING WARNING  !!!\\
+\%  !!!   MUST BE CONFORM TO THE CPP SWITCHES    !!!\\
+\%  !!! WARNING WARNING WARNING WARNING WARNING  !!!\\
+\%  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\\
+\%\\
+obc=[1 0 1 1]; \% open boundaries (1=open , [S E N W])\\
+\%\\
+\%  Level of reference for geostrophy calculation\\
+\%\\
+zref=-500; \\
+\%\\
+\%  Day of initialization\\
+\%\\
+tini=15;  \\
+\%\\
+\% Set times and cycles: monthly climatology for all data\\
+\%\\
+time=[15:30:345];    \% time \\
+cycle=360;           \% cycle \\
+\%\\
+\%  Data climatologies file names:\\
+\%\\
+\%    temp\_month\_data : monthly temperature climatology\\
+\%    temp\_ann\_data   : annual temperature climatology\\
+\%    salt\_month\_data : monthly salinity climatology\\
+\%    salt\_ann\_data   : annual salinity climatology\\
+\%\\
+temp\_month\_data='../WOA2001/temp\_month.cdf';\\
+temp\_ann\_data='../WOA2001/temp\_ann.cdf';\\
+insitu2pot=1;   \% transform in-situ temperature to potential temperature\\
+salt\_month\_data='../WOA2001/salt\_month.cdf';\\
+salt\_ann\_data='../WOA2001/salt\_ann.cdf';\\
+\%\\
+\%\\
+\\
+Variables description :
+\begin{itemize}
+\item title='Climatology' : Any title is good.
+\item makeclim=1 : Switch to define if the climatology
+ (boundary conditions) file is generated. should be 1.
+\item makeoa=1 : Switch to define if the OA (objective analysis)
+ file is generated. This should be 1. The OA files are intermediate files
+ where hydrographic data are stored on a ROMS horizontal grid but on
+ a z vertical grid. The transformation to S-coordinate is done after.
+ These files are not used by ROMS.
+\item makeini=1 : Switch to define if the initial file is generated. 
+It should be 1.
+\item grdname='roms\_grd.nc' : Grid file name previously generated.
+\item frcname='roms\_frc.nc' : Surface forcing file name previously 
+generated. We need to provide the surface forcing to compute the Ekman 
+transport for the velocities of the lateral boundary conditions.
+\item clmname='roms\_clm.nc' : Climatology file name.
+\item ininame='roms\_ini.nc' : Initial file name.
+\item oaname ='roms\_oa.nc' : OA intermediate file name.
+\item theta\_s=7. : Vertical S-coordinate surface stretching parameter. 
+When building the climatology and initial ROMS files, we have to define
+the vertical grid. Be cautious, the vertical grid parameters should be 
+identical in this file and in the ROMS input file (i.e. 
+$\sim$/Roms\_tools/Run/roms.in).
+This is a serious cause of bug.
+The effects of theta\_s, theta\_b, hc, and N can be tested 
+using the script : \\
+$\sim$/Roms\_tools/Preprocessing\_tools/test\_vgrid.m.
+\item theta\_b=0. : Vertical S-coordinate bottom stretching parameter.
+\item hc=5. : Vertical S-coordinate $H_c$ parameter. It gives approximately the
+transition depth between the horizontal surface levels and the bottom terrain following
+levels.It should be inferior to hmin.
+\item N=20 : Number of vertical level. Be careful, this have to be also 
+defined in the file : $\sim$/Roms\_tools/Run/param.h before compiling
+the model.
+\item obc=[1 0 1 1] : Switches to open (1) or close (0=wall) the lateral
+boundaries [South East North West]. This is used when the constraint of mass
+enforcement is applied. Be aware, this should be compatible with the open boundary
+CPP-switches in the file $\sim$/Roms\_tools/Run/cppdefs.h.
+\item zref=-500 : Depth in meters of no motion when computing the geostrophic 
+velocities.
+\item tini=15 : Day of initialization (15 = January 15).
+\item time=[15:30:345] : Time in days in the datasets (Matlab vector).
+\item cycle=360 : This variable define that the model will be run 
+forced by climatological data on a cyclic year of 360 days.
+If not, it should be 0.
+\item temp\_month\_data='../WOA2001/temp\_month.cdf' : Name of the monthly
+climatology temperature data file.
+\item temp\_ann\_data='../WOA2001/temp\_ann.cdf' : Name of the annual
+climatology temperature data file. Since the monthly climatology 
+contains only the 1500 first meters, the annual climatology is used for the 
+deeper levels.
+\item insitu2pot=1 : Switch defined if it is in-situ temperature that is provided.
+In this case, in-situ temperature is converted into potential temperature.
+\item salt\_month\_data='../WOA2001/salt\_month.cdf' : Name of the monthly
+climatology salinity data file.
+\item salt\_ann\_data='../WOA2001/salt\_ann.cdf' : Name of the annual
+climatology salinity data file.
+\end{itemize}
+
+Save make\_clim.m and run it in the Matlab session :
+\\ \\
+$>>$ make\_clim 
+\\ \\
+This program can also take quite a long time to run.
+
+\begin{figure}[h!]
+\centerline{\psfig{figure=section_clim.eps,width=12cm}}
+\caption{Result of make\_clim.m for the Peru example}
+\label{fig:clim}
+\end{figure}
+
+Figure (\ref{fig:clim}) presents 4 different sections
+of temperature in the initial condition file for the 
+Peru example. The section are in the X-direction (East-West), 
+the first section is for the South of the domain and the last one 
+is for the North of the domain.
+
+\subsection{Compiling and running the model}
+
+Once all the netcdf data files are ready (i.e. XXX\_grd.nc,
+XXX\_frc.nc, XXX\_ini.nc, and XXX\_clm.nc), we can 
+prepare ROMS for compilation. All is done in the 
+ $\sim$/Roms\_tools/Run/ directory. First edit the file 
+ $\sim$/Roms\_tools/Run/param.h.
+ The line that needs to be changed is:\\ 
+ \\
+\#  elif defined PERU
+
+      parameter (LLm0=29,  MMm0=24, N=20)  ! $<--$ Peru Test Case\\
+\#  else\\
+\\
+These are the values of the model grid size: LLm0 points in the X 
+direction, MM0m points in the Y direction and N vertical levels.
+LLm0 and MMm0 are given by running make\_grid.m, and N is
+defined in make\_clim.m.
+
+The second file to change is  $\sim$/Roms\_tools/Run/cppdefs.h.
+This file defines the CPP keys that are used by the
+the C-preprocessor when compiling ROMS.
+Definitions of the CCP keys in cppdefs.h:
+\begin{itemize}
+\item BASIN     : Must be defined for running the Basin Example.
+\item CANYON\_A  : Must be defined for running the Canyon\_A Example.
+\item CANYON\_B  : Must be defined for running the Canyon\_B Example.
+\item GRAV\_ADJ  : Must be defined for running the Gravitational Adjustment Example.
+\item INNERSHELF   : Must be defined for running the Inner Shelf Example.
+\item OVERFLOW  : Must be defined for running the Graviational/Overflow Example.
+\item SEAMOUNT  : Must be defined for running the Seamount Example.
+\item SHELFRONT : Must be defined for running the Shelf Front Example.
+\item SOLITON   : Must be defined for running the Equatorial Rossby Wave Example.
+\item UPWELLING : Must be defined for running the Upwelling Example.
+\item REGIONAL\_MODEL : Must be defined if running realistic regional simulations.
+\item PERU :  Configuration Name, this is used in param.h.
+
+\item OPENMP : Activate Open-MP parallelization protocol.
+\item MPI : Activate MPI parallelization protocol.
+\item AGRIF : Activate the nesting capabilities
+
+\item SOLVE3D : Define if solving 3D primitive equations
+\item UV\_COR : Activate Coriolis terms.
+\item UV\_ADV : Activate advection terms.
+\item SSH\_TIDES : Define for processing sea surface elevation tidal data at the model boundaries.
+\item UV\_TIDES :  Define for processing ocean current tidal data at the model boundaries.
+\item VAR\_RHO\_2D : Activate nonuniform density in barotropic mode pressure-
+ gradient terms.
+\item FLAT\_WEIGHTS :  Use a more dissipative averaging for the baroclinic/barotropic coupling.
+
+\item CURVGRID : Activate curvilinear coordinate grid option.
+\item SPHERICAL : Activate longitude/latitude grid positioning.
+\item MASKING : Activate land masking in the domain.
+\item AVERAGES : Define if writing out time-averaged data.
+\item SALINITY : Define if using salinity.
+\item NONLIN\_EOS : Activate the nonlinear equation of state.
+\item SPLIT\_EOS : Activate to split the nonlinear equation of state in a
+adiabatic part and a compressible part.
+
+\item ZCLIMATOLOGY : Activate processing of  sea surface height climatology.
+\item UCLIMATOLOGY : Activate processing of  momentum climatology.
+\item ZNUDGING : Activate open boundary passive/active term + nudging layer for zeta.
+\item M2NUDGING : Activate open boundary passive/active term + nudging layer for ubar and vbar.
+\item SPONGE : Activate areas of enhanced viscosity/diffusion.
+
+\item QCORRECTION : Activate net heat flux correction.
+\item SFLX\_CORR : Activate freshwater flux correction.
+\item DIURNAL\_SRFLUX : Activate diurnal modulation of the short wave radiation flux
+\item TCLIMATOLOGY : Activate processing of tracer climatology.
+\item TNUDGING : Activate open boundary passive/active term + nudging layer for tracers.
+\item M3NUDGING : Activate open boundary passive/active term + nudging layer for u and v.
+\item ROBUST\_DIAG : Activate strong tracer nudging in the interior for diagnostic 
+simulations.
+
+\item ANA\_SSFLUX : Define if using analytical surface salinity flux.
+\item ANA\_SST : Define if using analytical SST and dQdSST.
+\item ANA\_SSS : Define if using analytical sea surface salinity.
+\item ANA\_SRFLUX : Define if using analytical surface shortwave radiation flux.
+\item ANA\_STFLUX : Define if using analytical surface temperature flux.
+\item ANA\_BSFLUX : Define if using analytical bottom salinity flux.
+\item ANA\_BTFLUX : Define if using analytical bottom temperature flux.
+\item ANA\_TCLIMA : Activate analytical tracer climatology.
+\item ANA\_SMFLUX : Define if using analytical surface momentum stress.
+\item ANA\_UCLIMA : Activate analytical momentum climatology.
+
+\item VIS\_GRID : Activate viscosity coefficient scaled by grid size.
+\item UV\_VIS2 : Activate Laplacian horizontal mixing.
+\item TS\_DIF2 : Activate Laplacian horizontal mixing.
+\item DIF\_GRID : Activate diffusion coefficient scaled by grid size.
+\item MIX\_GP\_TS : Activate mixing on geopotential (constant Z) surfaces.
+\item MIX\_GP\_UV : Activate mixing on geopotential (constant Z) surfaces.
+\item CLIMAT\_TS\_MIXH : Activate mixing of T-Tclim instead of tracers.
+
+\item BODYFORCE : Define if applying stresses as bodyforces.
+\item BVF\_MIXING : Activate Brunt-Vaisala frequency mixing scheme.
+\item PP\_MIXING : Activate Pacanowsky/Philander mixing scheme.
+\item LMD\_MIXING : Activate Large/McWilliams/Doney mixing (LMD-KPP closure).
+\item LMD\_SKPP : Activate surface boundary layer KPP mixing (LMD-KPP closure). 
+\item LMD\_BKPP : Activate bottom boundary layer KPP mixing (LMD-KPP closure). 
+\item LMD\_RIMIX : Activate shear instability interior mixing (LMD-KPP closure).
+\item LMD\_CONVEC : Activate convection interior mixing (LMD-KPP closure).
+\item LMD\_DDMIX : Activate double diffusion interior mixing (LMD-KPP closure). 
+\item LMD\_BOTEK :  Activate a bottom Ekman layer parametrisation. 
+\item LMD\_NONLOCAL : Activate nonlocal transport (LMD-KPP closure). 
+
+\item OBC\_EAST : Open eastern boundary (should be consistent with make\_clim.m).
+\item OBC\_WEST : Open western boundary (should be consistent with make\_clim.m).
+\item OBC\_NORTH : Open northern boundary (should be consistent with make\_clim.m).
+\item OBC\_SOUTH : Open southern boundary (should be consistent with make\_clim.m).
+
+\item OBC\_VOLCONS : Activate mass conservation enforcement at open boundaries.
+\item OBC\_M2ORLANSKI : Activate 2D radiation open boundary conditions for ubar and vbar.
+\item OBC\_M2FLATHER :  Activate Flather open boundary conditions for ubar and vbar.
+\item OBC\_TORLANSKI :  Activate 2D radiation open boundary conditions for tracers.
+\item OBC\_M3ORLANSKI : Activate 2D radiation open boundary conditions for u and v.
+
+\item OBC\_TSPECIFIED : Activate specified open boundary conditions for tracers.
+\item OBC\_M2SPECIFIED : Activate specified open boundary conditions for ubar and vbar.
+\item OBC\_M3SPECIFIED : Activate specified open boundary conditions for u and v.
+
+\item AGRIF\_STORE\_BAROT\_CHILD : Store ubar and vbar during the parent step for the
+chidl boundary conditions (Nesting).
+\item AGRIF\_FLUX\_BC : Apply parent/child barotropic boundary conditions has 
+fluxes (Nesting).
+\item AGRIF\_POLY\_DUAVG : Apply a third order polynomial temporal interpolation 
+for DU\_avg1 and DU\_avg2 (Nesting).
+\item AGRIF\_CORRECT\_LOCAL\_FLUXES  : Apply a local barotropic flux conservation 
+enforcement at the child boundaries (Nesting).
+\item AGRIF\_RAD2D : Radiate child barotropic boundary conditions (Nesting).
+\item AGRIF\_RAD3D : Radiate child 3d momentum boundary conditions (Nesting).
+\item AGRIF\_RADT : Radiate child tracer boundary conditions (Nesting).
+\item AGRIF\_2WAY : 2-way nesting (Nesting).
+
+\item BIOLOGY : Activate the biogechemical module.
+
+\item FLOATS : Activate floats.
+\item FLOATS\_GLOBAL\_ATTRIBUTES
+\item RANDOM\_WALK
+
+\item PASSIVE\_TRACER : Add a passive tracer
+
+\item SEDIMENT : Activate the sediment module.
+\item ANA\_SEDIMENT
+\item BED\_ARMOR
+\item ANA\_SPFLUX
+\item ANA\_BPFLUX
+\item LINEAR\_CONTINUATION
+\item NEUMANN
+\item ROUSE
+
+\item BBL : Activate the bottom boundary layer module.
+\item ANA\_WWAVE
+\item ANA\_BSEDIM
+\item Z0\_BL
+\item Z0\_RIP
+\item Z0\_BIO
+
+\end{itemize}
+
+In the case of standard regional modeling, only open boundary conditions switches
+should be changed in cppdefs.h (to be conformed to make\_clim.m). 
+Once done, ROMS can be compiled
+by running the UNIX script $\sim$/Roms\_tools/Run/jobcomp.
+The script jobcomp is able to recognize your system. It has been tested with 
+Linux, IBM and Compaq computers. On Linux PCs, the default compiler is the GNU g77, 
+but it is possible to uncomment specific lines in jobcomp to use the Intel Fortran
+Compiler (IFC). The latter is mandatory when using AGRIF and/or OPEN\_MP.
+When changing the compiler you should provide a corresponding netcdf library.
+Once compiled you should obtain a new
+executable (roms) in the $\sim$/Roms\_tools/Run directory.
+
+Now, edit the input parameter file: $\sim$/Roms\_tools/Run/roms.in.
+The vertical grid parameters (THETA\_S,   THETA\_B,   HC)
+should be identical to the ones in make\_clim.m. 
+Otherwise, the other default values should not be changed.
+The meaning of all the input variable is given at the start of each ROMS
+simulation.
+To run the model, type in directory $\sim$/Roms\_tools/Run/ : roms roms.in.
+
+\subsection{Getting the results}
+
+Once the model has run, or during the simulation, it is possible
+to easily visualize the model outputs using a Matlab graphic user interface : 
+roms\_gui. Launch roms\_gui in the Matlab session 
+(in $\sim$/Roms\_tools/Run/ directory):
+\\ \\
+$>>$ roms\_gui
+\\ \\
+\begin{figure}[!ht]
+\centerline{\psfig{figure=select.eps,width=7cm}}
+\caption{Entrance window of roms\_gui}
+\label{fig:open}
+\end{figure}
+
+A window pops up, asking for a ROMS history netcdf file (Figure \ref{fig:open}).
+You should select roms\_his.nc (history file) or roms\_avg.nc (average file) and
+click "open".
+ 
+\begin{figure}[!ht]
+\centerline{\psfig{figure=roms_gui2.eps,width=12cm}}
+\caption{roms\_gui}
+\label{fig:romsgui}
+\end{figure}
+
+The main window appears, variables can be selected to obtain an image such as
+(Figure \ref{fig:romsgui}). The left box  gives the available variable names.
+the right box presents the derived variables. These are variables diagnosed
+from ROMS outputs :
+
+\begin{itemize}
+\item Ke : Horizontal slice of kinetic energy: $0.5(u^2+v^2)$.
+
+\item Rho : Horizontal slice of density using the non-linear equation of state 
+for seawater of \citet{Jac95}. 
+
+\item Vor : Horizontal slice of vorticity: $\frac{\partial v}{\partial x}-
+\frac{\partial u}{\partial y}$.
+
+\item Vp : Horizontal slice of the vertical component of Ertel's potential vorticity:
+$\frac{\partial \lambda}{\partial z} \left [ f + 
+\left (\frac{\partial v}{\partial x}-\frac{\partial u}{\partial y}\right ) \right ]$.
+In our case, $\lambda=\rho$.
+
+\item Psi : Horizontal slice of stream function: 
+$\nabla^2 \psi=\frac{\partial v}{\partial x}-\frac{\partial u}{\partial y}$.
+This routine might be costly since it inverses the Laplacian of the vorticity
+(using a successive over relaxation solver).
+
+\item Spd : Horizontal slice of the ocean currents velocity : $\sqrt{u^2+v^2}$.
+
+\item Svd : Horizontal slice of the transport stream function : 
+$\nabla^2 S_{vd}=\frac{\partial \bar{v}}{\partial x}-\frac{\partial \bar{u}}{\partial y}$.
+
+
+\item Oku : Horizontal slice of the Okubo-Weiss parameter : 
+$\Lambda^2=
+\left ( \frac{\partial u}{\partial x}-\frac{\partial v}{\partial y} \right )^2+
+\left ( \frac{\partial v}{\partial x}+\frac{\partial u}{\partial y} \right )^2-
+\left ( \frac{\partial v}{\partial x}-\frac{\partial u}{\partial y} \right )^2$.
+
+\end{itemize}
+
+It is possible to add arrows for the horizontal currents by increasing the "Current vectors 
+spatial step". It is also possible to obtain vertical sections and 
+Hovm\"uller diagrams by clicking on the corresponding targets in roms\_gui.

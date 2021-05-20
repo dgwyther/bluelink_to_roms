@@ -1,0 +1,57 @@
+Using the methods described by  \citet{Fla76}, ROMS is able to propagate the different 
+tidal constituents from its boundaries. Simply  define  the cpp keys SSH\_TIDES
+and UV\_TIDES and recompile the model using jobcomp.
+
+\subsection{Preparing the tides boundary conditions}
+
+The tidal components are added to the forcing file (XXX\_frc.nc)
+by the Matlab program make\_tides.m.
+Edit the file : $\sim$/Roms\_tools/Preprocessing\_tools/make\_tides.m.
+The part of the file that you should change is :\\
+\\
+\%\\
+\% TPXO file name\\
+\%\\
+tidename='../Tides/TPXO6.nc';\\
+\%\\
+\% ROMS file names\\
+\%\\
+gname='roms\_grd.nc';\\
+fname='roms\_frc.nc';\\
+\%\\
+\% Number of tides component to process\\
+\%\\
+Ntides=5;\\
+\%\\
+\% Set start time of simulation\\
+\%\\
+year=2000;\\
+month=1;\\
+day=15;\\
+hr=0.;\\
+minute=0.;\\
+second=0.;\\
+\\
+The variables that you can change :
+\begin{itemize}
+\item tidename='../Tides/TPXO6.nc'; : Location of the netcdf tidal dataset. 
+This file is derived from 
+the Oregon State University global model of ocean tides TPXO.6 \citep{Egb02}. 
+Data sources can be found at 
+http://www.oce.orst.edu/po/research/tide/global.html.
+\item gname='roms\_grd.nc' : Name of the ROMS netcdf grid file.
+\item fname='roms\_frc.nc' : Name of the ROMS netcdf forcing file. This is where 
+the tidal informations will be added.
+\item Ntides=5; : Number of tidal components to process. Be careful !
+This value should be identical to the value of the parameter Ntides in param.h:
+"parameter (Ntides=5)".
+\item year=2000; month=1; day=15; hr=0.; minute=0.; second=0.; : This is the 
+starting time of simulation. A procedure correct phases and amplitudes for real 
+time runs. It employs parts of a post-processing code from \citet{Egb02} TPXO model.
+\end{itemize}
+
+\subsection{Run the model}
+
+Save make\_tides.m and run it in the Matlab session. The model is now ready to run 
+with tides. To work correctly, the model should use the \citet{Fla76} open boundary 
+radiation scheme (cpp key OBC\_M2FLATHER defined).

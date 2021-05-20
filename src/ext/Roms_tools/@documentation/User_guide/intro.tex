@@ -1,0 +1,250 @@
+This guide presents a series of Matlab routines that 
+could be useful for the pre- and post-processing of oceanic
+regional ROMS simulations.
+
+The Regional Ocean Modeling System (ROMS) is a new
+generation ocean circulation model \citep{Shc03b}
+that has been specially designed for accurate simulations
+of regional oceanic systems.
+The reader is referred to \citet{Shc03a} and to 
+\citet{Shc03b} for a complete description of the model.
+ROMS has been applied for the regional simulation of a 
+variety of different regions of the world oceans 
+\citep[e.g.][]{Bla02,Dil03,Hai00,Mac02,Mar03,Pen01}.
+
+To perform a regional simulation using ROMS, the modeler needs
+to provide a whole set of data in a specific format:
+horizontal grid, topography, surface forcing,
+lateral boundary conditions. He also needs to analyze
+the model outputs. The tools that are described here
+have been designed to perform these tasks.
+The goal is to be able to build a standard
+regional model configuration in a minimum time. 
+
+In the first chapter, the system requirements and
+the installation process are exposed. 
+A short  note on ROMS model is presented in 
+chapter 2.
+A tutorial on the use of
+ROMSTOOLS is shown in the third chapter.
+Tidal and nesting tools are presented in chapter 4 and 5.
+
+\subsection{Installation}
+
+\subsubsection{System requirement}
+
+This toolbox has been designed for Matlab.
+It needs at least 2 Gbites of disk space.
+It has been tested on Linux workstations, but it 
+can be used on any platform if a Matlab netcdf mex file is
+provided.
+A Matlab netcdf mex file can be found at 
+the location: \\
+{\small
+http://woodshole.er.usgs.gov/staffpages/cdenham/public\_html/MexCDF/nc4ml5.html\#DOWNLOADING
+}. All the necessary Matlab toolboxes (netcdf and m\_map) are included 
+in the ROMSTOOLS package. The topography \citep{Smi97}, 
+hydrography \citep{Con02}, 
+and surface fluxes \citep{Das94}
+global datasets are also included.
+
+\subsubsection{Getting the files}
+
+A compressed tar file (roms\_tools.tar.gz) containing the 
+Matlab programs and all the necessary
+datasets (and also a version of ROMS) is located at :
+\begin{center}
+http://fraise.univ-brest.fr/$\sim$penven/Roms\_tools/ 
+\end{center}
+Be careful, the file is large ($\sim$ 530 Megs).
+If you are unable to obtain the file in this fashion, feel 
+free to contact me at : \\ 
+
+Pierrick Penven
+
+Institut de Recherche pour le D\'eveloppement
+
+Laboratoire de Physique des Oc\'eans
+
+Boite Postale 809
+
+6, Avenue Le Gorgeu
+
+29285 Brest CEDEX
+
+FRANCE \\
+\\
+email: Pierrick.Penven@ird.fr
+\\
+
+\noindent It is also possible to get ROMSTOOLS in three separate tar files:
+\begin{itemize}
+\item data.tar.gz for the datasets
+\item tools.tar.gz for the Matlab programs
+\item Roms\_agrif.tar.gz for the ROMS source code.
+\end{itemize}
+This way, it is not necessary to download again the whole dataset when a new ROMS
+release is available.
+
+\subsubsection{Extracting the files}
+
+Uncompress and untar the file (gunzip and tar -xvf). You should get the 
+following directory tree : \\
+\\
+Roms\_tools
+
+$|$-- COADS05 
+
+$|$\hspace{0.5cm}$|$-- Matlab
+
+$|$-- Compile
+
+$|$-- Diagnostic\_tools
+
+$|$-- Documentation
+
+$|$\hspace{0.5cm}$|$-- Matlab
+
+$|$-- m\_map
+
+$|$\hspace{0.5cm}$|$-- private
+
+$|$-- Nesting\_tools
+
+$|$-- netcdf\_g77
+
+$|$-- netcdf\_ifc
+
+$|$-- netcdf\_matlab
+
+$|$\hspace{0.5cm}$|$-- listpick
+
+$|$\hspace{0.5cm}$|$-- ncatt
+
+$|$\hspace{0.5cm}$|$-- ncbrowser
+
+$|$\hspace{0.5cm}$|$-- ncdim
+
+$|$\hspace{0.5cm}$|$-- ncfiles
+
+$|$\hspace{0.5cm}$|$-- ncitem
+
+$|$\hspace{0.5cm}$|$-- ncrec
+
+$|$\hspace{0.5cm}$|$-- nctype
+
+$|$\hspace{0.5cm}$|$-- ncutility
+
+$|$\hspace{0.5cm}$|$-- ncvar
+
+$|$\hspace{0.5cm}$|$-- netcdf
+
+$|$-- Preprocessing\_tools
+
+$|$-- Roms\_Agrif
+
+$|$\hspace{0.5cm}$|$-- AGRIFZOOM
+
+$|$\hspace{0.5cm}$|$\hspace{0.5cm}$|$-- AGRIF\_FILES
+
+$|$\hspace{0.5cm}$|$\hspace{0.5cm}$|$-- AGRIF\_INC
+
+$|$\hspace{0.5cm}$|$\hspace{0.5cm}$|$-- AGRIF\_OBJS
+
+$|$\hspace{0.5cm}$|$\hspace{0.5cm}$|$-- AGRIF\_YOURFILES
+
+$|$\hspace{0.5cm}$|$\hspace{0.5cm}$|$-- CVS
+
+$|$\hspace{0.5cm}$|$\hspace{0.5cm}$|$-- LIB.clean
+
+$|$\hspace{0.5cm}$|$-- CVS
+
+$|$-- Run
+
+$|$-- Tides
+
+$|$-- Topo
+
+$|$\hspace{0.5cm}$|$-- Matlab
+
+$|$-- Visualization\_tools
+
+$|$-- WOA2001
+\\
+\\
+Meaning of the different directories :
+\begin{itemize}
+\item COADS05 : Location of the COADS surface fluxes data
+(monthly climatology at $0.5^\circ$ resolution).
+\item Compile : Empty scratch directory for ROMS compilation.
+\item Diagnostic\_tools : A few Matlab scripts for animations and
+statistical analysis.
+\item Documentation
+\item m\_map : The Matlab mapping toolbox 
+(http://www2.ocgy.ubc.ca/$\sim$rich/map.html).
+\item Nesting\_tools : preprocessing tools used to prepare nested
+grids.
+\item netcdf\_g77 : The netcdf Fortran library for Linux compiled with g77\\
+(http://www.unidata.ucar.edu/packages/netcdf/index.html).
+\item netcdf\_ifc : The netcdf Fortran library for Linux compiled with ifc. The
+Intel Fortran 95 compiler (ifc) is available at \\
+http://www.intel.com/software/products/compilers/flin/noncom.htm.
+\item netcdf\_matlab : The Matlab netcdf toolbox  \\
+({\small
+http://woodshole.er.usgs.gov/staffpages/cdenham/public\_html/MexCDF/nc4ml5.html}).
+This is where the mexfile (mexcdf60.mexglx) is located (this needs 
+to be replaced if you are not using a Linux PC).
+\item Preprocessing\_tools : preprocessing Matlab scripts.
+\item Roms\_Agrif : ROMS Fortran sources.
+\item Run : Working directory. This is where the ROMS input files
+are generated and where the model is running.
+\item Tides : Location of the tidal dataset and the Matlab routines 
+to prepare ROMS tidal simulations.
+The tidal dataset  is derived from the Oregon State University
+global model of ocean tides TPXO.6 \citep{Egb02}: 
+http://www.oce.orst.edu/po/research/tide/global.html
+\item Topo : Location of the global topography dataset at $2'$ resolution
+\citep{Smi97}. Original data can be found at:
+http://topex.ucsd.edu/cgi-bin/get\_data.cgi
+\item Visualization\_tools : Matlab scripts for the ROMS visualization
+graphic user interface.
+\item WOA2001 : World Ocean Atlas 2001 global dataset 
+(monthly climatology at $1^\circ$ resolution).
+\end{itemize}
+
+If you need to create and play .fli animations, you should install ppm2fli
+and xanim on your system. If you have a Linux PC, you can follow these steps:
+\begin{enumerate}
+\item log in as root
+\item go to the Roms\_tools directory
+\item type : rpm -Uvh  ppm2fli-2.1-1.i386.rpm
+\item type : rpm -Uvh  xanim-2.80.1-12.i386.rpm
+\item log out
+\end{enumerate}
+If you are not using a Linux PC, you should ask your 
+system administrator to install these programs.
+
+
+\subsection{Future plans}
+\begin{itemize}
+\item A graphic user interface should be useful for the
+preprocessing tools.
+\end{itemize}
+
+\subsection{Warnings and bugs}
+\begin{itemize}
+\item Since Geostrophy is used to derived horizontal currents 
+from hydrology data, this method can not be applied close to 
+the equator. To perform equatorial simulations (in a 
+$5^\circ$S-$5^\circ$N band), the user should find another 
+way to provide horizontal currents at model boundaries.
+\item The interpolation procedure does not handle grids that cross
+the 180$^\circ$E longitude meridian. 
+Grids should stay between longitudes -180$^\circ$E and 180$^\circ$W,  
+and avoid the middle of the Pacific Ocean.
+\item On extended grids, the objective analysis used for data 
+extrapolation can be relatively costly in memory and CPU time. 
+The "nearest" Matlab function that is less costly is used instead.
+If the computer starts to swap, you should think of reducing the 
+dimension of the model's domain.
+\end{itemize}

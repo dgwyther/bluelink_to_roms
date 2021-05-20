@@ -1,0 +1,20 @@
+%
+% diagnostics
+%
+In the case of long simulations, it appeared more practical
+to run month by month simulations. The csh script :
+$\sim$/Roms\_tools/Run/run\_roms.csh is restarting automatically
+roms each simulated month (or year). To analyze these long simulations,
+a few scripts have been added in the directory: 
+$\sim$/Roms\_tools/Diagnostic\_tools:
+\begin{itemize}
+\item roms\_anim.m  : Create an animation from the monthly  history or average files.
+\item get\_Mmean.m  : Get the mean for each month.
+\item get\_Smean.m  : Get the seasonal and annual mean.
+\item get\_Meddy.m  : Get the variance for each month.
+\item get\_Meddy\_ns.m  : Get the non-seasonal (i.e., the seasonal variation are 
+filtered) variance for each month.
+\item get\_Seddy.m  : Get the seasonal and annual variance.
+\item get\_Seddy\_ns.m  : Get the seasonal and annual non-seasonal variance.
+\end{itemize}
+The mean or variance files can be visualized by roms\_gui.

@@ -2,20 +2,23 @@
 % LOAD BRAN DATA HISTORY GIVEN A ROMS GRID FILE
 % Created by Colette Kerry on 2014-08-12
 % modified for new bluelink files Sept 2015
+% modified by DEG for BRAN2020 and changed toolbox structure.
+
+clear all; close all;
 
 addpath(genpath('../ext/'))
 addpath(genpath('../../conf/'))
 
-set_default_options()
+opt = set_default_options()
 
 %% ------ user input ------
 
-grid=grid_read(opt.grid_path) % grid file path
+grid=grid_read(opt.grid_path_roms); % grid file path
 epoch_roms=opt.epoch_roms;				% epoch for data
 outpath=opt.outpath;	% set output path
 outfile=opt.outfile; 	% set output file name
 years=opt.years;	% set time coverage
-path=opt.path;		% set path to BRAN2020 data
+path=opt.BRAN2020_path;		% set path to BRAN2020 data
 
 %% ----- end user input ------
 
@@ -113,7 +116,7 @@ zgrid.depth = bldepth;
 % First, create the history file
 if (~exist(outfile,'file'))
   disp(['create history file: ' outfile]);
-  zgrid_write(zgrid,outfile,epoch_roms);
+  zgrid_write(zgrid,outfile,epoch_roms,'David Gwyther');
   % Fill it with zeros
   rec.zeta = nan([1 size(slon)]);
   rec.u    = nan([1 length(bldepth) size(slon)]);
