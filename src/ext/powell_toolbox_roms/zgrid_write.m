@@ -1,4 +1,4 @@
-function zgrid_write( zgrid, filename, epoch )
+function zgrid_write( zgrid, filename, epoch, username )
 
 % ini_write( grid, filename )
 %
@@ -29,8 +29,12 @@ mexnc('close',id);
 
 % Set the global variables for the file
 nc_attput( filename, nc_global, 'title', 'Z Grid File' );
-[a,user]=unix('finger `whoami`');
+[a,user]=unix('pinky `whoami`'); %update of finger to pinky commands. Finger not installed on Gadi. Neither work on VDI.
 user=regexp(user, 'Name: (?<name>[\w ]*)', 'names');
+%if isempty(user); user=[]; user.name = input('user.name can''t be automatically filled, please enter name'); end
+if (nargin>=3 | ~isempty(username));
+	user=[]; user.name=username; disp('setting user name from input')
+end
 nc_attput( filename, nc_global, 'author', user.name );
 nc_attput( filename, nc_global, 'date', datestr(now));
 nc_attput( filename, nc_global, 'type', 'ROMS Initialization');
