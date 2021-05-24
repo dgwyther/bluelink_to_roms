@@ -18,14 +18,14 @@ opt.grid_path_bluelink='../../data/out/EACouter_BL_grid.nc';	% BL grid for ROMS 
 
 % global time settings
 opt.epoch_roms=datenum(2000,1,1);                           	% epoch for data
-opt.years=[2017:2019];                                      	% set time coverage
+opt.years=[1994:2019];                                      	% set time coverage
 
 % BRAN grid settings
 opt.grid_path_branNative = '/g/data/gb6/BRAN/BRAN2020/static/ocean_grid.nc';  	% BRAN2020 native grid
 
 % processing BRAN directories
 opt.outpath='../../data/out/';  	% set output path
-opt.outfile=[opt.outpath,'EAC_BRAN2020_his_2017_2019.nc'];      % set output file name
+opt.outfile=[opt.outpath,'EAC_BRAN2020_his_1994_2019.nc'];      % set output file name
 opt.BRAN2020_path='/g/data/gb6/BRAN/BRAN2020/daily/'; 		% set path to BRAN2020 data
 
 % making climatology directories
