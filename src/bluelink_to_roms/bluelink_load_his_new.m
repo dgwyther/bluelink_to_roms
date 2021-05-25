@@ -141,7 +141,7 @@ end
 
   var=char(vars(vv));
   svar=char(blvarsfile(vv));
-  disp(svar);
+  %disp(svar);
 
  % % First, find all empty records
  % if ( dims(v) == 3 )
@@ -158,7 +158,8 @@ end
   %for t=1:length(list),
   %  progress(length(list),t,1);
   %  try 
-      if ( dims(vv) == 3 )
+
+  if ( dims(vv) == 3 )
         bldat = nc_varget(file, svar, ...
                    [0 lat_list(1) lon_list(1)], ...
                    [-1 lat_list(2) lon_list(2)]);
@@ -178,11 +179,21 @@ end
                         [0 0 lat_list(1) lon_list(1)], ...
                         [-1 -1 lat_list(2) lon_list(2)]);
                    bldat_r=nan(size(bldat));
-                for t=1:size(bldat,1)
-                 for d=1:size(bldat,2)
-                  bldat_r(t,d,:,:)=griddata(slonu,slatu,squeeze(bldat(t,d,:,:)),slon,slat);
-                 end
-                end
+		   t_end = size(bldat,1); d_end=size(bldat,2);
+	     switch opt.bluelink_his_parallelise
+		case 'no'
+			for t=1:t_end;
+                                for d=1:d_end;
+                                  bldat_r(t,d,:,:)=griddata(slonu,slatu,squeeze(bldat(t,d,:,:)),slon,slat);
+                                end
+                        end
+		case 'yes'
+			parfor t=1:t_end;
+                 		for d=1:d_end;
+                		  bldat_r(t,d,:,:)=griddata(slonu,slatu,squeeze(bldat(t,d,:,:)),slon,slat);
+                 		end
+                	end
+		end
          nc_varput(outfile,var,bldat_r,[timelist-1 0 0 0],size(bldat_r))
          else % this is T and S
          nc_varput(outfile,var,bldat,[timelist-1 0 0 0],size(bldat))
@@ -195,6 +206,7 @@ end
         fdone=['Done ocean_',blvars{vv},'_',num2str(y(lbt)),'_',m_s,'.nc ------ took ',num2str(ttot),' seconds'];
         if lbt==1&vv==1; fid = fopen('MLrunlog.log','w');end
         fprintf(fid,'%s\n',fdone);
+	disp(fdone)
   end % end the vv loop
 end % end the time/number of files loop (lbt), one file per month
 fclose(fid)
