@@ -18,23 +18,23 @@ opt.grid_path_bluelink='../../data/out/EACouter_BL_grid.nc';	% BL grid for ROMS 
 
 % global time settings
 opt.epoch_roms=datenum(2000,1,1);                           	% epoch for data
-opt.years=[2011:2014];                                      	% set time coverage
+opt.years=[1994:2019];                                      	% set time coverage
 
 % BRAN grid settings
 opt.grid_path_branNative = '/g/data/gb6/BRAN/BRAN2020/static/ocean_grid.nc';  	% BRAN2020 native grid
 
 % processing BRAN directories
 opt.outpath='../../data/out/';  	% set output path
-opt.outfile=[opt.outpath,'EAC_BRAN2020_his_2011_2014.nc'];      % set output file name
+opt.outfile=[opt.outpath,'EAC_BRAN2020_his_1994_2019.nc'];      % set output file name
 opt.BRAN2020_path='/g/data/gb6/BRAN/BRAN2020/daily/'; 		% set path to BRAN2020 data
 opt.bluelink_his_parallelise = 'yes' 				% Choose this to parallelise the gridding of BRAN u,v data to ROMS grid
 
 % making climatology directories
-opt.climfile_path =  '/srv/scratch/z3097808/bluelink_new/20years/';
-opt.climfile_prefix = 'EAC_BRAN_clim_';
+opt.climfile_path =  '../../data/out/';
+opt.climfile_prefix = 'EAC_BRAN2020_clim_';
 
 % making bry settings
-opt.bryfile_path = '/srv/scratch/z3097808/bluelink_new/20years/';
+opt.bryfile_path = '../../data/final/';
 opt.bryfile_prefix = 'EAC_BRAN_bry_';
 
 % making ini settings

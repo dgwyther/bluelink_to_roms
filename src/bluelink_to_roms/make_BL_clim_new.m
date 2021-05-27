@@ -1,12 +1,16 @@
+clear all; close all;
+%system('./load_netcdf_module.sh');
+
 addpath(genpath('../ext/'))
 addpath(genpath('../../conf/'))
 
-set_default_options()
+opt = set_default_options()
 
 BLg=grid_read(opt.grid_path_bluelink);
 romsg=grid_read(opt.grid_path_roms);
 
-disp(num2str([romsg.theta_s romsg.theta_b]));
+%disp(num2str([romsg.theta_s romsg.theta_b]));
+disp(['starting making climfiles at ',datestr(now)])
 
 for years=opt.years(1):opt.years(end) 
  for halfyr=1:2
@@ -26,11 +30,11 @@ climfile=[opt.climfile_path,opt.climfile_prefix,num2str(years),'_',num2str(halfy
   ttot=toc;
         if exist('climfile')
         fdone=['Generated ',climfile,' ------ took ',num2str(ttot),' seconds'];
-        if years==2011&halfyr==1; fid = fopen('MLrunlog_clim.log','w');end
+        if years==opt.years(1)&halfyr==1; fid = fopen('MLrunlog_clim.log','w');end
         fprintf(fid,'%s\n',fdone);
 	disp(fdone)
         end
  end % end half year loop
 end % end years loop
 fclose(fid);
-
+disp(['done at ',datestr(now)])

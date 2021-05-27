@@ -115,7 +115,7 @@ zgrid.depth = bldepth;
 
 % First, create the history file
 if (~exist(outfile,'file'))
-  disp(['create history file: ' outfile]);
+  disp(['create history file: ' outfile ' at ',datestr(now)]);
   zgrid_write(zgrid,outfile,epoch_roms,'David Gwyther');
   % Fill it with zeros
   rec.zeta = nan([1 size(slon)]);
@@ -210,3 +210,4 @@ end
   end % end the vv loop
 end % end the time/number of files loop (lbt), one file per month
 fclose(fid)
+disp(['finished at ',datestr(now)])

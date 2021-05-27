@@ -32,8 +32,9 @@ mexnc('close',id);
 
 % Set the global variables for the file
 nc_attput( filename, nc_global, 'title', 'ROMS Boundary File' );
-[a,user]=unix('finger `whoami`');
+[a,user]=unix('pinky `whoami`');
 user=regexp(user, 'Name: (?<name>[\w ]*)', 'names');
+if isempty(user); user=[]; [~,matchuser] = system('echo $USER'); user.name = matchuser(regexp(matchuser,'\w')); disp(['setting user name to ',user.name]);end
 nc_attput( filename, nc_global, 'author', user.name );
 nc_attput( filename, nc_global, 'date', datestr(now));
 nc_attput( filename, nc_global, 'type', 'ROMS Boundary');
