@@ -31,7 +31,7 @@ opt.bluelink_his_parallelise = 'yes' 				% Choose this to parallelise the griddi
 
 % making climatology directories
 opt.climfile_path =  '../../data/out/';
-opt.climfile_prefix = 'EAC_BRAN2020_clim_';
+opt.climfile_prefix = 'EAC_BRAN_clim_';
 
 % making bry settings
 opt.bryfile_path = '../../data/final/';
@@ -39,4 +39,5 @@ opt.bryfile_prefix = 'EAC_BRAN_bry_';
 
 % making ini settings
 opt.initime=datenum(1994,1,1,12,0,0);
-opt.inifile_name = '../../../../srv/scratch/z3097808/bluelink_new/20years/EAC_BRAN_1994Jan1_ini.nc';
+opt.inifile_clim = '../../data/out/EAC_BRAN_clim_1994_1.nc';
+opt.inifile_name = '../../data/final/EAC_BRAN_1994Jan1_ini.nc';

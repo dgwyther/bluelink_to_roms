@@ -1,3 +1,4 @@
+clear all; close all;
 addpath(genpath('../ext/'))
 addpath(genpath('../../conf/'))
 
