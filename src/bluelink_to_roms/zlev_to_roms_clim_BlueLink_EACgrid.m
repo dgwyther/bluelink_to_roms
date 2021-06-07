@@ -34,15 +34,20 @@ if nargin == 6,
 end
 
 % First, create the climatology
-disp(['create climatology file: ' outfile]);
-unix([regexprep(which('clim_write'),'\.m$','\.sh') ' ' outfile ' '...
-      num2str([rgrd.lp rgrd.mp rgrd.n length(time)])]);
+%disp(['create climatology file: ' outfile]);
+%unix([regexprep(which('clim_write'),'\.m$','\.sh') ' ' outfile ' '...
+%      num2str([rgrd.lp rgrd.mp rgrd.n length(time)])]);
+%clim_write(rgrd,outfile,vars,length(time))
 
 % Variables to construct
-vars={'zeta' 'u' 'v' 'temp' 'salt'};
-tvars={'zeta_time' 'v2d_time' 'v3d_time' 'temp_time' 'salt_time'};
+vars={'zeta' 'u' 'v' 'temp' 'salt' 'ubar' 'vbar'};
+tvars={'zeta_time' 'v3d_time' 'v3d_time' 'temp_time' 'salt_time' 'v2d_time' 'v2d_time'};
 ndims=[2 3 3 3 3];
 grid={'r' 'u' 'v' 'r' 'r'};
+
+% First, create the climatology
+disp(['create climatology file: ' outfile]);
+clim_write(rgrd,outfile,vars,length(time))
 
 % Convert everything to x,y coordinates
 [hx,hy,rxr,ryr]=grid_cartesian(zgrd,rgrd);
@@ -52,6 +57,10 @@ grid={'r' 'u' 'v' 'r' 'r'};
 for v=1:length(tvars),
   nc_varput(outfile,char(tvars(v)),ht(time));
 end
+
+% overwrite to remove ubar, vbar which we needed to initialise climfile
+vars={'zeta' 'u' 'v' 'temp' 'salt'};
+tvars={'zeta_time' 'v3d_time' 'v3d_time' 'temp_time' 'salt_time'};
 
 % Set up the arrays
 minpts = 0.1*numel(zgrd.maskr);
